@@ -1,0 +1,336 @@
+/******************************************************************************
+
+1. Minimum Window Substring (IMPORTANT..)
+    Problem Statement: Given two strings s and t of lengths m and n respectively,
+        return the minimum window substring of s such that every character in t (including duplicates) is included in the window.
+        If there is no such substring, return the empty string "".
+    Input:A string sA string t
+    Output: A string representing the shortest valid window segment.
+    Example:s = "ADOBECODEBANC", t = "ABC"
+    Expected Result: "BANC" (This contains 'B', 'A', and 'N', satisfying all target frequencies with a minimal length of 4)
+
+2. Permutation in String
+    Problem Statement: Given two strings s1 and s2, return true if s2 contains a permutation of s1, or false otherwise.
+        In other words, return true if one of s1's permutations is a substring of s2.
+    Input:A string s1, A string s2
+    Output: A boolean value (true or false).
+    Example:s1 = "ab", s2 = "eidbaooo"
+    Expected Result: true (s2 contains the substring "ba", which is a valid permutation of "ab")
+
+3. Find All Anagrams in a String
+    Problem Statement: Given two strings s and p, return an array of all the start indices of p's anagrams in s.
+        You may return the answer in any order.
+    Input:A string sA string p
+    Output: An array of integers containing the structural index positions.
+    Example:s = "cbaebabacd", p = "abc"
+    Expected Result: [0, 6] (The anagram "cba" starts at index 0; the anagram "bac" starts at index 6)
+
+4. Subarray Product Less Than K
+    Problem Statement: Given an array of integers nums and an integer k,
+        return the number of contiguous subarrays where the product of all the elements in the subarray is strictly less than k.
+    Input:An array of positive integers numsAn integer k
+    Output: An integer representing the total count of valid subarrays.
+    Example:nums = [10, 5, 2, 6], k = 100
+    Expected Result: 8 (The 8 valid contiguous variations are [10], [5], [2], [6], [10, 5], [5, 2], [2, 6], and [5, 2, 6])
+
+5. Binary Subarrays With Sum
+    Problem Statement: Given a binary array nums and an integer goal,
+        return the total number of non-empty contiguous subarrays whose sum equals goal.
+    Input:An array of integers nums (containing only 0s and 1s)An integer goal
+    Output: An integer representing the total matching count.
+    Example:nums = [1, 0, 1, 0, 1],
+    goal = 2
+    Expected Result: 4 (The valid ranges correspond to the structural bounds: [1,0,1], [1,0,1,0], [0,1,0,1], and [1,0,1])
+
+6. Count Number of Nice Subarrays
+    Problem Statement: Given an array of integers nums and an integer k.
+        A contiguous subarray is called nice if it contains exactly k odd numbers.
+        Return the total number of nice subarrays.
+    Input:An array of integers numsAn integer k
+    Output: An integer representing the total count of nice subsegments.
+    Example:nums = [1, 1, 2, 1, 1], k = 3
+    Expected Result: 2 (The structural ranges meeting the exact count of 3 odd values are [1,1,2,1] and [1,2,1,1])
+
+*******************************************************************************/
+import java.util.*;
+public class Main
+{
+	public static void main(String[] args) {
+
+		// ==========================================================
+		// 1. Minimum Window Substring
+		// ==========================================================
+		String s1 = "ADOBECODEBANC";
+		String t = "ABC";
+
+		// ==========================================================
+		// 2. Permutation in String
+		// ==========================================================
+		String s2a = "ab";
+		String s2b = "eidbaooo";
+
+		// ==========================================================
+		// 3. Find All Anagrams in a String
+		// ==========================================================
+		String s3 = "cbaebabacd";
+		String p = "abc";
+
+		// ==========================================================
+		// 4. Subarray Product Less Than K
+		// ==========================================================
+		int[] arr4 = {10, 5, 2, 6};
+		int k4 = 100;
+
+		// ==========================================================
+		// 5. Binary Subarrays With Sum
+		// ==========================================================
+		int[] arr5 = {1, 0, 1, 0, 1};
+		int goal = 2;
+
+		// ==========================================================
+		// 6. Count Number of Nice Subarrays
+		// ==========================================================
+		int[] arr6 = {1, 1, 2, 1, 1};
+		int k6 = 3;
+
+		// ==========================================================
+		// Outputs
+		// ==========================================================
+		System.out.println("1. Minimum Window Substring");
+		System.out.println(minWindow(s1, t));
+		System.out.println();
+
+		System.out.println("2. Permutation in String");
+		System.out.println(checkInclusion(s2a, s2b));
+		System.out.println();
+
+		System.out.println("3. Find All Anagrams");
+		System.out.println(findAnagrams(s3, p));
+		System.out.println();
+
+		System.out.println("4. Subarray Product Less Than K");
+		System.out.println(numSubarrayProductLessThanK(arr4, k4));
+		System.out.println();
+
+		System.out.println("5. Binary Subarrays With Sum");
+		System.out.println(subArraySumKCount(arr5, goal));
+		System.out.println();
+
+		System.out.println("6. Count Number of Nice Subarrays");
+		System.out.println(numberOfSubarrays(arr6, k6));
+	}
+
+	public static String minWindow(String s, String t) {
+
+		if (s.length() < t.length()) {
+			return "";
+		}
+
+		HashMap<Character, Integer> need = new HashMap<>();
+
+		for (char c : t.toCharArray()) {
+			need.put(c, need.getOrDefault(c, 0) + 1);
+		}
+
+		int left = 0;
+		int matched = 0;
+		int required = need.size();
+
+		int start = 0;
+		int minLength = Integer.MAX_VALUE;
+
+		for (int right = 0; right < s.length(); right++) {
+
+			char ch = s.charAt(right);
+
+			if (need.containsKey(ch)) {
+
+				need.put(ch, need.get(ch) - 1);
+
+				if (need.get(ch) == 0) {
+					matched++;
+				}
+			}
+
+			while (matched == required) {
+
+				if (right - left + 1 < minLength) {
+
+					minLength = right - left + 1;
+					start = left;
+				}
+
+				char leftChar = s.charAt(left);
+
+				if (need.containsKey(leftChar)) {
+
+					need.put(leftChar, need.get(leftChar) + 1);
+
+					if (need.get(leftChar) > 0) {
+						matched--;
+					}
+				}
+
+				left++;
+			}
+		}
+		return (minLength == Integer.MAX_VALUE ? "" : s.substring(start, start + minLength);
+	}
+
+	public static boolean checkInclusion(String s1, String s2) {
+
+		if (s1.length() > s2.length()) {
+			return false;
+		}
+
+		int[] s1Freq = new int[26];
+		int[] windowFreq = new int[26];
+
+		for (int i = 0; i < s1.length(); i++) {
+
+			s1Freq[s1.charAt(i) - 'a']++;
+			windowFreq[s2.charAt(i) - 'a']++;
+		}
+
+		if (Arrays.equals(s1Freq, windowFreq)) {
+			return true;
+		}
+
+		for (int right = s1.length(); right < s2.length(); right++) {
+
+			windowFreq[s2.charAt(right) - 'a']++;
+
+			windowFreq[s2.charAt(right - s1.length()) - 'a']--;
+
+			if (Arrays.equals(s1Freq, windowFreq)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public static List<Integer> findAnagrams(String s, String p) {
+
+		List<Integer> answer = new ArrayList<>();
+
+		if(p.length() > s.length()) {
+			return answer;
+		}
+
+		int[] pFreq = new int[26];
+		int[] windowFreq = new int[26];
+
+		for (int i = 0; i < p.length(); i++) {
+
+			pFreq[p.charAt(i) - 'a']++;
+			windowFreq[s.charAt(i) - 'a']++;
+		}
+
+		if (Arrays.equals(pFreq, WindowFreq)) {
+			answer.add(0);
+		}
+
+		for (int right = p.length(); right < s.length(); right++ ) {
+
+			windowFreq[s.charAt(right) - 'a']++;
+
+			windowFreq[s.charAt(right - p.length()) - 'a']--;
+
+			if (Arrays.equals(pFreq, windowFreq)) {
+				answer.add(right - p.length() + 1);
+			}
+		}
+
+		return answer;
+	}
+
+	public static int numSubarrayProductLessThanK(int[] arr, int k) {
+		if (k <= 1) {
+			return 0;
+		}
+
+		int left = 0;
+		int product = 0;
+		int count = 0;
+
+		for (int right = 0; right < arr.length; right++ ) {
+
+			product *= arr[right];
+
+			while (product >= k) {
+
+				product /= arr[left];
+				left++;
+			}
+
+			count += right - left + 1;
+		}
+		return count;
+	}
+
+	public static int AtMost(int[] arr, int goal) {
+		if (goal < 0) {
+			return 0;
+		}
+
+		int left = 0;
+		int currentSum = 0;
+		int count = 0;
+
+		for (int right = 0; right < arr.length; right++) {
+
+			currentSum += arr[right];
+
+			while (currentSum > goal) {
+
+				currentSum -= arr[left];
+				left++;
+			}
+
+			count += right - left + 1;
+		}
+
+		return count;
+	}
+
+	public static int subArraySumKCount(int[] arr, int goal) {
+		return AtMost(arr, goal) - AtMost(arr, goal - 1);
+	}
+
+	public static int AtMostnice(int[] nums, int k) {
+
+		if (k < 0) {
+			return 0;
+		}
+
+		int left = 0;
+		int oddCount = 0;
+		int count = 0;
+
+		for (int right = 0; right < nums.length; right++) {
+
+			if (nums[right] % 2 != 0) {
+				oddCount++;
+			}
+
+			while (oddCount > k) {
+
+				if (nums[left] % 2 != 0) {
+					oddCount--;
+				}
+
+				left++;
+			}
+
+			count += right - left + 1;
+		}
+
+		return count;
+	}
+
+	public static int numberOfSubarrays(int[] nums, int k) {
+
+		return AtMostnice(nums, k) - AtMostnice(nums, k - 1);
+	}
+
+}
